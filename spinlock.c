@@ -22,5 +22,10 @@ void spinlock_lock(spinlock* s) {
 }
 
 void spinlock_unlock(spinlock* s) {
+    printf("Releasing\n");
     *(s->tid) = 0;
+}
+
+void spinlock_free(spinlock* s) {
+    free(s->tid);
 }

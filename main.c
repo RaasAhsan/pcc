@@ -27,12 +27,11 @@ int main() {
     int y = 6;
 
     thread a, b;
-    spinlock* s = malloc(sizeof(spinlock));
+    spinlock s;
+    spinlock_new(&s);
 
-    spinlock_new(s);
-
-    thread_new(&a, &thread_two, (void*) s);
-    thread_new(&b, &thread_three, (void*) s);
+    thread_new(&a, &thread_two, (void*) &s);
+    thread_new(&b, &thread_three, (void*) &s);
 
 
     printf("A: %d\n", a.tid);
@@ -42,6 +41,8 @@ int main() {
     thread_join(b);
 
     printf("Done joining\n");
+
+    spinlock_free(&s);
 
     return 0;
 }

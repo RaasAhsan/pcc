@@ -7,15 +7,13 @@
 #include <unistd.h>
 
 void spinlock_new(spinlock* s) {
-    s->tid = malloc(sizeof(pid_t));
+    s->state = malloc(sizeof(int));
 }
 
 void spinlock_lock(spinlock* s) {
-    pid_t ctid = getpid();
-
     bool acquired = false;
     while (!acquired) {
-        acquired = __sync_bool_compare_and_swap(s->tid, 0, ctid);
+        acquired = __sync_bool_compare_and_swap(s->state, 0, 1);
     }
 
     printf("Acquired\n");
@@ -23,9 +21,9 @@ void spinlock_lock(spinlock* s) {
 
 void spinlock_unlock(spinlock* s) {
     printf("Releasing\n");
-    *(s->tid) = 0;
+    __sync_bool_compare_and_swap(s->state, 1, 0);
 }
 
 void spinlock_free(spinlock* s) {
-    free(s->tid);
+    free(s->state);
 }

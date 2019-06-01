@@ -4,7 +4,7 @@
 #include <sys/types.h>
 
 typedef struct {
-    pid_t* volatile tid;
+    int* state;
 } spinlock;
 
 void spinlock_new(spinlock* s);

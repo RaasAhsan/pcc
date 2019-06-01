@@ -16,11 +16,11 @@
 typedef struct {
     void (*fn)();
     void *args;
-} run_thread_args;
+} task;
 
 int run_thread(void *args) {
-    run_thread_args* rtargs = (run_thread_args*) args;
-    (*(rtargs->fn))(rtargs->args);
+    task* t = (task*) args;
+    (*(t->fn))(t->args);
     return 0;
 }
 
@@ -29,12 +29,12 @@ void thread_new(thread* t, void (*fn)(), void *args) {
     char* stackTop = stack + STACK_SIZE;
 
     // TODO: We should free this in run_thread.
-    run_thread_args* rtargs = malloc(sizeof(run_thread_args));
-    rtargs->fn = fn;
-    rtargs->args = args; // May need to copy this memory
+    task* tt = malloc(sizeof(task));
+    tt->fn = fn;
+    tt->args = args; // May need to copy this memory
 
     // Do we need CLONE_THREAD here? Otherwise we can't wait with join.
-    pid_t pid = clone(run_thread, stackTop, CLONE_SIGHAND | CLONE_VM | CLONE_FILES | CLONE_PARENT_SETTID | CLONE_CHILD_CLEARTID, (void*) rtargs);
+    pid_t pid = clone(run_thread, stackTop, CLONE_SIGHAND | CLONE_VM | CLONE_FILES | CLONE_PARENT_SETTID | CLONE_CHILD_CLEARTID, (void*) tt);
     if (pid == -1) {
         int e = errno;
         perror("The error is: ");

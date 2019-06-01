@@ -4,10 +4,10 @@
 #include <sys/types.h>
 
 typedef struct {
-  pid_t tid;
+    pid_t tid;
 } thread;
 
-void thread_new(thread* t);
+void thread_new(thread* t, void (*fn)());
 void thread_join(thread t);
 
 #endif

@@ -11,29 +11,27 @@
 
 #include "thread.h"
 
-#define STACK_SIZE (1024 * 1024)
+#define STACK_SIZE (2 * 1024 * 1024)
 
-void print_pt_info(int i) {
-    printf("%d: current PID is: %d\n", i, getpid());
-    printf("%d: parent PID is: %d\n", i, getppid());
-    printf("%d: thread ID is: %ld\n", i, syscall(SYS_gettid));
-}
+typedef struct {
+    void (*fn)();
+} run_thread_args;
 
-int task() {
-    printf("Started task\n");
-    print_pt_info(2);
-    sleep(5);
+int run_thread(void *args) {
+    run_thread_args* rtargs = (run_thread_args*) args;
+    (*(rtargs->fn))();
     return 0;
 }
 
-void thread_new(thread* t) {
-    print_pt_info(1);
-
+void thread_new(thread* t, void (*fn)()) {
     char* stack = malloc(STACK_SIZE);
     char* stackTop = stack + STACK_SIZE;
 
+    run_thread_args* rtargs = malloc(sizeof(run_thread_args));
+    rtargs->fn = fn;
+
     // Do we need CLONE_THREAD here? Otherwise we can't wait with join.
-    pid_t pid = clone(task, stackTop, CLONE_SIGHAND | CLONE_VM | CLONE_FILES | CLONE_PARENT_SETTID | CLONE_CHILD_CLEARTID, NULL);
+    pid_t pid = clone(run_thread, stackTop, CLONE_SIGHAND | CLONE_VM | CLONE_FILES | CLONE_PARENT_SETTID | CLONE_CHILD_CLEARTID, (void*) rtargs);
     if (pid == -1) {
         int e = errno;
         perror("The error is: ");
@@ -41,10 +39,6 @@ void thread_new(thread* t) {
     }
 
     t->tid = pid;
-
-    sleep(2);
-
-    printf("Thread ID is %d\n", pid);
 }
 
 void thread_join(thread t) {

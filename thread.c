@@ -27,6 +27,7 @@ void thread_new(thread* t, void (*fn)()) {
     char* stack = malloc(STACK_SIZE);
     char* stackTop = stack + STACK_SIZE;
 
+    // TODO: We should free this in run_thread.
     run_thread_args* rtargs = malloc(sizeof(run_thread_args));
     rtargs->fn = fn;
 

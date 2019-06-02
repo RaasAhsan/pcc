@@ -39,6 +39,7 @@ void thread_three(void *args) {
 }
 
 int main() {
+    printf("size of void* is: %ld\n", sizeof(void*));
     int x = 5;
     int y = 6;
 

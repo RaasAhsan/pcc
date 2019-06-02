@@ -21,8 +21,7 @@ void mutex_lock(mutex* m) {
     pid_t ctid = getpid();
 
     while (true) {
-        bool acquired = __sync_bool_compare_and_swap(m->state, MUTEX_UNLOCKED, MUTEX_LOCKED);
-        if (acquired) {
+        if (__sync_bool_compare_and_swap(m->state, MUTEX_UNLOCKED, MUTEX_LOCKED)) {
             break;
         }
 

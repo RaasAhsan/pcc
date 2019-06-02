@@ -8,3 +8,6 @@ pcc is a library for concurrent programming in C. It provides the following mech
 - Barriers
 - Atomics
 - Spinlock
+- Reentrant locks
+- Queues
+- Disruptor

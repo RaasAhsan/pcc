@@ -5,6 +5,7 @@
 
 #include "latch.h"
 #include "mutex.h"
+#include "semaphore.h"
 #include "spinlock.h"
 #include "thread.h"
 
@@ -25,17 +26,19 @@
 // }
 
 void thread_two(void *args) {
+    semaphore_acquire((semaphore*) args);
     printf("Starting two\n");
     sleep(5);
     printf("Thread 2 is done %d\n", 2);
-    latch_countdown((latch*) args);
+    semaphore_release((semaphore*) args);
 }
 
 void thread_three(void *args) {
+    semaphore_acquire((semaphore*) args);
     printf("Starting three\n");
     sleep(2);
     printf("Thread 3 is done %d\n", 3);
-    latch_countdown((latch*) args);
+    semaphore_release((semaphore*) args);
 }
 
 int main() {
@@ -43,14 +46,17 @@ int main() {
     int x = 5;
     int y = 6;
 
-    latch l;
-    latch_new(&l, 2);
+    semaphore s;
+    semaphore_new(&s, 1);
 
     thread a, b;
-    thread_new(&a, &thread_two, (void*) &l);
-    thread_new(&b, &thread_three, (void*) &l);
+    thread_new(&a, &thread_two, (void*) &s);
+    thread_new(&b, &thread_three, (void*) &s);
 
-    latch_wait(&l);
+    thread_join(a);
+    thread_join(b);
+
+    semaphore_free(&s);
 
     printf("Done!\n");
 

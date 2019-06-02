@@ -14,8 +14,8 @@
 #define LATCH_CLOSED 1
 
 void latch_new(latch* l, int count) {
-    l->state = malloc(sizeof(int));
-    l->remaining = malloc(sizeof(int));
+    l->state = (int*) malloc(sizeof(int));
+    l->remaining = (int*) malloc(sizeof(int));
 
     *(l->state) = LATCH_OPEN;
     *(l->remaining) = count;

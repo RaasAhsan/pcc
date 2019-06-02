@@ -1,8 +1,6 @@
 #ifndef MUTEX_H
 #define MUTEX_H
 
-#include <sys/types.h>
-
 typedef struct {
     int* volatile state;
 } mutex;

@@ -1,8 +1,6 @@
 #ifndef SPINLOCK_H
 #define SPINLOCK_H
 
-#include <sys/types.h>
-
 typedef struct {
     int* state;
 } spinlock;

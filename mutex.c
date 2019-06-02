@@ -16,16 +16,16 @@ void mutex_new(mutex* m) {
 void mutex_lock(mutex* m) {
     pid_t ctid = getpid();
 
-    bool acquired = false;
-    while (!acquired) {
-        acquired = __sync_bool_compare_and_swap(m->state, 0, 1);
+    while (true) {
+        bool acquired = __sync_bool_compare_and_swap(m->state, 0, 1);
+        if (acquired) {
+            break;
+        }
 
-        if (!acquired) {
-          int status = syscall(SYS_futex, m->state, FUTEX_WAIT, 1, NULL, NULL, 0);
-          if (status == -1 && errno != EAGAIN) {
-              perror("futex wait");
-              exit(1);
-          }
+        int status = syscall(SYS_futex, m->state, FUTEX_WAIT, 1, NULL, NULL, 0);
+        if (status == -1 && errno != EAGAIN) {
+            perror("futex wait");
+            exit(1);
         }
     }
 
@@ -34,6 +34,7 @@ void mutex_lock(mutex* m) {
 
 void mutex_unlock(mutex* m) {
     printf("Releasing\n");
+    // TODO: Should this be an atomic operation
     *(m->state) = 0;
     int status = syscall(SYS_futex, m->state, FUTEX_WAKE, 1, NULL, NULL, 0);
     if (status == -1) {

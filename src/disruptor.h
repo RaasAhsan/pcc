@@ -1,5 +1,4 @@
-#ifndef DISRUPTOR_H
-#define DISRUPTOR_H
+#pragma once
 
 /*
 SPSC (Single Producer, Single Consumer)
@@ -20,5 +19,3 @@ void disruptor_new(disruptor* d, int capacity);
 void disruptor_put(disruptor* d, void* item);
 void disruptor_take(disruptor* d);
 void disruptor_free(disruptor* d);
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef THREAD_H
-#define THREAD_H
+#pragma once
 
 #include <sys/types.h>
 
@@ -9,5 +8,3 @@ typedef struct {
 
 void thread_new(thread* t, void (*fn)(), void *args);
 void thread_join(thread t);
-
-#endif

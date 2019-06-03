@@ -15,5 +15,6 @@ pcc is a library for concurrent programming in C. It provides the following mech
 ## Running
 
 ```shell
-gcc main.c thread.c spinlock.c mutex.c latch.c queue.c semaphore.c && ./a.out
+./compile.sh
+./a.out
 ```

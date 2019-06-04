@@ -1,5 +1,4 @@
-#ifndef DISRUPTOR_H
-#define DISRUPTOR_H
+#pragma once
 
 /*
 SPSC (Single Producer, Single Consumer)
@@ -33,5 +32,3 @@ void consumer_new(consumer* c, disruptor* d);
 void* consumer_take(consumer* c);
 // TODO: Perform a batching read
 void consumer_free(consumer* c);
-
-#endif

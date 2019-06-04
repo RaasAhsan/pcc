@@ -1,5 +1,4 @@
-#ifndef MUTEX_H
-#define MUTEX_H
+#pragma once
 
 typedef struct {
     int* volatile state;
@@ -9,5 +8,3 @@ void mutex_new(mutex* m);
 void mutex_lock(mutex* m);
 void mutex_unlock(mutex* m);
 void mutex_free(mutex* m);
-
-#endif

@@ -17,7 +17,8 @@ void disruptor_put(disruptor* d, void* item) {
     __sync_synchronize();
 
     while (true) {
-        // TODO: read memory barrier
+        // TODO: read memory barrier. Reusing the one from above
+        // Wait until the committed sequence is the sequence that this producer claimed
         if (*(d->commit_sequence) == claimed_sequence) {
             *(d->commit_sequence) = claimed_sequence + 1;
             __sync_synchronize();

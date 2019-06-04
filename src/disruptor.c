@@ -14,11 +14,11 @@ void disruptor_put(disruptor* d, void* item) {
     // A CAS is only necessary when there is contention on the claim sequence by multiple producers
     int claimed_sequence = __sync_fetch_and_add(d->claim_sequence, 1);
     d->items[claimed_sequence] = item;
-    __sync_synchronize();
+    // Logically, a write barrier is necessary here. We are reusing the first one in the loop.
 
     while (true) {
-        // TODO: read memory barrier. Reusing the one from above
         // Wait until the committed sequence is the sequence that this producer claimed
+        __sync_synchronize();
         if (*(d->commit_sequence) == claimed_sequence) {
             *(d->commit_sequence) = claimed_sequence + 1;
             __sync_synchronize();

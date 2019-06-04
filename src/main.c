@@ -1,8 +1,10 @@
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/wait.h>
 #include <unistd.h>
 
+#include "disruptor.h"
 #include "latch.h"
 #include "mutex.h"
 #include "semaphore.h"
@@ -26,37 +28,48 @@
 // }
 
 void thread_two(void *args) {
-    semaphore_acquire((semaphore*) args);
-    printf("Starting two\n");
-    sleep(5);
-    printf("Thread 2 is done %d\n", 2);
-    semaphore_release((semaphore*) args);
+    int x = 0;
+    while (true) {
+        disruptor_put((disruptor*) args, (void*) &x);
+        x += 2;
+        sleep(5);
+    }
+}
+
+void thread_two_b(void *args) {
+    int x = 1;
+    while (true) {
+        disruptor_put((disruptor*) args, (void*) &x);
+        x += 2;
+        sleep(5);
+    }
 }
 
 void thread_three(void *args) {
-    semaphore_acquire((semaphore*) args);
-    printf("Starting three\n");
-    sleep(2);
-    printf("Thread 3 is done %d\n", 3);
-    semaphore_release((semaphore*) args);
+    while (true) {
+        int* item = (int*) consumer_take((consumer*) args);
+        printf("Take: %d\n", *item);
+    }
 }
 
 int main() {
     printf("size of void* is: %ld\n", sizeof(void*));
-    int x = 5;
-    int y = 6;
 
-    semaphore s;
-    semaphore_new(&s, 1);
+    disruptor d;
+    disruptor_new(&d, 1024);
 
-    thread a, b;
-    thread_new(&a, &thread_two, (void*) &s);
-    thread_new(&b, &thread_three, (void*) &s);
+    consumer c;
+    consumer_new(&c, &d);
 
-    thread_join(a);
-    thread_join(b);
+    thread ct, p1t, p2t;
+    thread_new(&ct, &thread_three, (void*) &c);
+    thread_new(&p1t, &thread_two, (void*) &d);
+    thread_new(&p2t, &thread_two_b, (void*) &d);
 
-    semaphore_free(&s);
+    thread_join(ct);
+
+    consumer_free(&c);
+    disruptor_free(&d);
 
     printf("Done!\n");
 

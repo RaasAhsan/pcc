@@ -9,16 +9,29 @@ MPMC (Multiple Producer, Multiple Consumer)
 */
 
 typedef struct {
-    int capacity;
     // An array of length `capacity` that forms the underlying circular buffer
     void** volatile items;
-    int* volatile claimed_sequence;
-    int* volatile sequence;
+    int volatile capacity;
+    // The next sequence number to be claimed
+    int* volatile claim_sequence;
+    // The next sequence number to be committed
+    int* volatile commit_sequence;
 } disruptor;
 
 void disruptor_new(disruptor* d, int capacity);
 void disruptor_put(disruptor* d, void* item);
-void disruptor_take(disruptor* d);
 void disruptor_free(disruptor* d);
+
+// Single-threaded consumer
+
+typedef struct {
+    disruptor* disruptor;
+    int* commit_sequence;
+} consumer;
+
+void consumer_new(consumer* c, disruptor* d);
+void* consumer_take(consumer* c);
+// TODO: Perform a batching read
+void consumer_free(consumer* c);
 
 #endif

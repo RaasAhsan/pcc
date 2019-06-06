@@ -30,7 +30,8 @@
 void thread_two(void *args) {
     int x = 0;
     while (true) {
-        disruptor_put((disruptor*) args, (void*) &x);
+        int y = x;
+        disruptor_sp_put((disruptor*) args, (void*) &y);
         x += 2;
         sleep(5);
     }
@@ -39,7 +40,7 @@ void thread_two(void *args) {
 void thread_two_b(void *args) {
     int x = 1;
     while (true) {
-        disruptor_put((disruptor*) args, (void*) &x);
+        disruptor_mp_put((disruptor*) args, (void*) &x);
         x += 2;
         sleep(5);
     }
@@ -64,7 +65,7 @@ int main() {
     thread ct, p1t, p2t;
     thread_new(&ct, &thread_three, (void*) &c);
     thread_new(&p1t, &thread_two, (void*) &d);
-    thread_new(&p2t, &thread_two_b, (void*) &d);
+    // thread_new(&p2t, &thread_two_b, (void*) &d);
 
     thread_join(ct);
 

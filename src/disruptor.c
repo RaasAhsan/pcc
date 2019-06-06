@@ -8,9 +8,22 @@ void disruptor_new(disruptor* d, int capacity) {
     d->capacity = capacity;
     d->claim_sequence = (int*) malloc(sizeof(int));
     d->commit_sequence = (int*) malloc(sizeof(int));
+
+    *(d->claim_sequence) = 0;
+    *(d->commit_sequence) = 0;
 }
 
-void disruptor_put(disruptor* d, void* item) {
+void disruptor_sp_put(disruptor* d, void* item) {
+    int claimed_sequence = *(d->claim_sequence);
+    *(d->claim_sequence) = claimed_sequence + 1;
+    d->items[claimed_sequence] = item;
+    *(d->commit_sequence) = claimed_sequence;
+
+    // TODO: Only a write barrier is necessary here
+    __sync_synchronize();
+}
+
+void disruptor_mp_put(disruptor* d, void* item) {
     // A CAS is only necessary when there is contention on the claim sequence by multiple producers
     int claimed_sequence = __sync_fetch_and_add(d->claim_sequence, 1);
     d->items[claimed_sequence] = item;

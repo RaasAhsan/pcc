@@ -18,7 +18,8 @@ typedef struct {
 } disruptor;
 
 void disruptor_new(disruptor* d, int capacity);
-void disruptor_put(disruptor* d, void* item);
+void disruptor_sp_put(disruptor* d, void* item);
+void disruptor_mp_put(disruptor* d, void* item);
 void disruptor_free(disruptor* d);
 
 // Single-threaded consumer

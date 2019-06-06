@@ -1,2 +1,7 @@
 a.out
 .idea
+bazel-bin
+bazel-genfiles
+bazel-out
+bazel-pcc
+bazel-testlogs
